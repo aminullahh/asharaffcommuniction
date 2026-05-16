@@ -1,38 +1,184 @@
-.App {
-  text-align: center;
+:root {
+  /* Colors extracted from your uploaded palette */
+  --primary: #1e293b; /* Deep professional background/headers */
+  --secondary: #3b82f6; /* Bright action buttons and highlights */
+  --accent: #f59e0b; /* Alerts, debts, or warning highlights */
+  --background: #f8fafc; /* Main app background */
+  --card-bg: #ffffff; /* Clean white for the cards */
+  --text-main: #334155; /* Readable text color */
+  --text-light: #94a3b8;
+  --success: #10b981;
+  --danger: #ef4444;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--background);
+  color: var(--text-main);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Card Style for Desktop Feel */
+.card {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+/* Header Branding */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 6px solid var(--secondary);
+}
+
+.main-header h1 {
+  font-size: 20px;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 1.8rem;
+  color: var(--primary);
+}
+
+.brand-subtitle {
+  color: var(--secondary);
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+/* Navigation */
+.desktop-nav {
+  display: flex;
+  gap: 15px;
+}
+
+.desktop-nav button {
+  background: transparent;
+  border: 2px solid var(--secondary);
+  color: var(--secondary);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.desktop-nav button.active,
+.desktop-nav button:hover {
+  background: var(--secondary);
+  color: #fff;
+}
+
+/* Forms */
+form {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  gap: 15px;
+}
+
+input,
+textarea,
+select {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+button[type="submit"] {
+  background: var(--primary);
+  color: white;
+  padding: 15px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button[type="submit"]:hover {
+  background: var(--secondary);
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background-color: var(--primary);
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+tr:hover {
+  background-color: #f1f5f9;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Dashboard Analytics Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Responsive Input Groups */
+.input-group {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .main-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
   }
-  to {
-    transform: rotate(360deg);
+  .desktop-nav {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: space-between;
+  }
+  /* Stacking Logic For Mobile */
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .input-group {
+    flex-direction: column;
+    gap: 10px;
   }
 }
