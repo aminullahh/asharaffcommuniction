@@ -95,7 +95,7 @@ function App() {
             className={view === "history" ? "active" : ""}
             onClick={() => setView("history")}
           >
-            Audit Logs
+            History & Logs
           </button>
           <button
             onClick={() => signOut(auth)}
