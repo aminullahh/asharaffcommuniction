@@ -157,9 +157,11 @@ const PurchaseForm = () => {
           </button>
 
           {showGuarantor && (
-            <div style={{ display: "flex", gap: "15px", marginTop: "15px" }}>
+            <div
+              className="input-group"
+              style={{ gap: "15px", marginTop: "15px" }}
+            >
               <input
-                style={{ flex: 1 }}
                 placeholder="Guarantor Name"
                 value={sellerData.guarantorName}
                 onChange={(e) =>
@@ -170,7 +172,6 @@ const PurchaseForm = () => {
                 }
               />
               <input
-                style={{ flex: 1 }}
                 placeholder="Guarantor Contact Phone"
                 value={sellerData.guarantorPhone}
                 onChange={(e) =>
@@ -301,7 +302,7 @@ const PurchaseForm = () => {
             fontWeight: "bold",
           }}
         >
-          Save All Added Phones to Stock
+          Save All Added Phones
         </button>
       </form>
     </div>

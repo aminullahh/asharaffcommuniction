@@ -42,9 +42,9 @@ const Login = () => {
             }}
             onError={(e) => (e.target.style.display = "none")}
           />
-          <h2 style={{ color: "var(--primary)", margin: 0 }}>System Access</h2>
+          <h2 style={{ color: "var(--primary)", margin: 0 }}>Admin Login</h2>
           <small style={{ color: "var(--text-light)" }}>
-            AMTECH PHONE MANAGER WORKSTATION
+            AMTECH PHONE MANAGER
           </small>
         </div>
         <form onSubmit={handleLogin}>
@@ -57,7 +57,7 @@ const Login = () => {
           />
           <input
             type="password"
-            placeholder="Secure Password"
+            placeholder="Administrator Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
