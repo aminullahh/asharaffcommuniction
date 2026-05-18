@@ -42,7 +42,7 @@ const Login = () => {
             }}
             onError={(e) => (e.target.style.display = "none")}
           />
-          <h2 style={{ color: "var(--primary)", margin: 0 }}>Admin Login</h2>
+          <h2 style={{ color: "var(--primary)", margin: 0 }}>ADMIN LOGIN</h2>
           <small style={{ color: "var(--text-light)" }}>
             AMTECH PHONE MANAGER
           </small>
