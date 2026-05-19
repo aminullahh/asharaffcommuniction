@@ -9,7 +9,8 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-const RecordSale = () => {
+// Added props to receive data from App.js
+const RecordSale = ({ incomingCart = [], setCheckoutCart, setView }) => {
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saleData, setSaleData] = useState({
@@ -17,20 +18,11 @@ const RecordSale = () => {
     totalAmount: "",
     amountPaid: "",
   });
-  const [selectedPhones, setSelectedPhones] = useState([]);
+
+  // Initialize with the cart items passed from AvailableStock
+  const [selectedPhones, setSelectedPhones] = useState(incomingCart);
   const [currentPhoneId, setCurrentPhoneId] = useState("");
 
-  // useEffect(() => {
-  //   const unsub = onSnapshot(collection(db, "inventory"), (snap) => {
-  //     setInventory(
-  //       snap.docs
-  //         .map((d) => ({ id: d.id, ...d.data() }))
-  //         .filter((p) => p.status === "available");
-  //         setLoading(false);
-  //     );
-  //   });
-  //   return unsub;
-  // }, []);
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "inventory"), (snap) => {
       setInventory(
@@ -38,7 +30,7 @@ const RecordSale = () => {
           .map((d) => ({ id: d.id, ...d.data() }))
           .filter((p) => p.status === "available"),
       );
-      setLoading(false); // Turn off loading when data is ready
+      setLoading(false);
     });
     return unsub;
   }, []);
@@ -59,11 +51,9 @@ const RecordSale = () => {
   const handleSale = async (e) => {
     e.preventDefault();
 
-    // Check if we are doing a bulk sale or a single direct sale
     let finalCheckoutList = [...selectedPhones];
 
     if (finalCheckoutList.length === 0) {
-      // If cart is empty, grab the single phone currently sitting in the dropdown
       if (currentPhoneId) {
         const singlePhone = inventory.find((p) => p.id === currentPhoneId);
         if (singlePhone) finalCheckoutList.push(singlePhone);
@@ -103,10 +93,13 @@ const RecordSale = () => {
           : "Sale completed and checked out!",
       );
 
-      // Reset form
+      // Reset form and global cart
       setSaleData({ customerName: "", totalAmount: "", amountPaid: "" });
       setSelectedPhones([]);
       setCurrentPhoneId("");
+
+      if (setCheckoutCart) setCheckoutCart([]); // Clear the global cart
+      if (setView) setView("stock"); // Send user back to stock list
     } catch (err) {
       console.error(err);
       alert("Error saving the transaction.");
@@ -262,7 +255,7 @@ const RecordSale = () => {
             </div>
           </div>
 
-          {/* SECTION 3: CHECKOUT CART (Only shows if you clicked + Add) */}
+          {/* SECTION 3: CHECKOUT CART */}
           {selectedPhones.length > 0 && (
             <div style={{ marginBottom: "20px" }}>
               <h3 style={{ margin: "0 0 10px 0", color: "var(--success)" }}>
@@ -324,9 +317,13 @@ const RecordSale = () => {
               padding: "12px",
               fontSize: "1.1rem",
               cursor: "pointer",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              fontWeight: "bold",
             }}
           >
-            Comfirm Sale
+            Confirm Sale
           </button>
         </form>
       )}

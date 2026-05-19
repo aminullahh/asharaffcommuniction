@@ -5,8 +5,10 @@ import "./App.css";
 
 import Login from "./components/Login";
 import PurchaseForm from "./components/PurchaseForm";
+import AvailableStock from "./components/AvailableStock"; // Added import
 import RecordSale from "./components/RecordSale";
 import Ledger from "./components/Ledger";
+import PersonalLedger from "./components/PersonalLedger";
 import OfficeStats from "./components/OfficeStats";
 import History from "./components/History";
 
@@ -14,6 +16,10 @@ function App() {
   const [view, setView] = useState("stats");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // New state to hold phones when moving from Available Stock to Record Sale
+  const [checkoutCart, setCheckoutCart] = useState([]);
+
   const shopName = process.env.REACT_APP_SHOP_NAME || "Amtech Phone Manager";
 
   useEffect(() => {
@@ -80,6 +86,12 @@ function App() {
             Phones In
           </button>
           <button
+            className={view === "stock" ? "active" : ""}
+            onClick={() => setView("stock")}
+          >
+            Available Stock
+          </button>
+          <button
             className={view === "sales" ? "active" : ""}
             onClick={() => setView("sales")}
           >
@@ -98,6 +110,12 @@ function App() {
             History & Logs
           </button>
           <button
+            className={view === "personal" ? "active" : ""}
+            onClick={() => setView("personal")}
+          >
+            Personal Debt
+          </button>
+          <button
             onClick={() => signOut(auth)}
             style={{
               border: "1px solid var(--danger)",
@@ -114,8 +132,23 @@ function App() {
       <main>
         {view === "stats" && <OfficeStats />}
         {view === "records" && <PurchaseForm />}
-        {view === "sales" && <RecordSale />}
+
+        {/* Pass setView and setCheckoutCart so the stock page can send items to checkout */}
+        {view === "stock" && (
+          <AvailableStock setView={setView} setCheckoutCart={setCheckoutCart} />
+        )}
+
+        {/* Pass the incoming cart data into RecordSale */}
+        {view === "sales" && (
+          <RecordSale
+            incomingCart={checkoutCart}
+            setCheckoutCart={setCheckoutCart}
+            setView={setView}
+          />
+        )}
+
         {view === "ledger" && <Ledger />}
+        {view === "personal" && <PersonalLedger />}
         {view === "history" && <History />}
       </main>
     </div>
