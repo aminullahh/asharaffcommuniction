@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { db } from "../services/firebaseConfig";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 
 const PurchaseForm = () => {
   const [sellerData, setSellerData] = useState({
@@ -17,6 +24,9 @@ const PurchaseForm = () => {
   });
   const [phoneBatch, setPhoneBatch] = useState([]);
   const [showGuarantor, setShowGuarantor] = useState(false);
+
+  // This lock the button and prevent spam-clicking
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addPhoneToBatch = () => {
     if (
@@ -38,6 +48,9 @@ const PurchaseForm = () => {
   const handleBulkSubmit = async (e) => {
     e.preventDefault();
 
+    // This Instantly lock the button so they can't click twice
+    setIsSubmitting(true);
+
     // This Check if we are saving a batch, or just a single direct phone
     let finalBatch = [...phoneBatch];
 
@@ -48,6 +61,7 @@ const PurchaseForm = () => {
         !currentPhone.imei ||
         !currentPhone.costPrice
       ) {
+        setIsSubmitting(false); // This Unlock button
         return alert(
           "Please enter the device details or add devices to the batch list.",
         );
@@ -55,19 +69,42 @@ const PurchaseForm = () => {
       finalBatch.push(currentPhone);
     }
 
-    if (!sellerData.sellerName)
+    if (!sellerData.sellerName) {
+      setIsSubmitting(false); // This Unlock button
       return alert("Seller Name is required to bind records.");
+    }
 
     try {
+      // This Handle The IMEI CHECK
+      // This Check every phone in the batch to see if it already exists in Firebase
+      for (const phone of finalBatch) {
+        const cleanImei = phone.imei.trim();
+        const imeiQuery = query(
+          collection(db, "inventory"),
+          where("imei", "==", cleanImei),
+        );
+        const querySnapshot = await getDocs(imeiQuery);
+
+        if (!querySnapshot.empty) {
+          alert(
+            `A device with IMEI ${cleanImei} is already recorded in the system!`,
+          );
+          setIsSubmitting(false); // ThisUnlock button so you can fix it
+          return;
+        }
+      }
+
+      // This Handle all IMEIs that are new. and Save them all to Firebase!
       for (const phone of finalBatch) {
         await addDoc(collection(db, "inventory"), {
           ...sellerData,
           ...phone,
+          imei: phone.imei.trim(), // This save the clean version
           status: "available",
           dateAdded: serverTimestamp(),
         });
       }
-      alert(`Success! ${finalBatch.length} device records secured safely.`);
+      alert(`Success! ${finalBatch.length} device recorded sucessfully.`);
 
       // This reset Reset the entire form
       setPhoneBatch([]);
@@ -86,7 +123,10 @@ const PurchaseForm = () => {
       setShowGuarantor(false);
     } catch (error) {
       console.error(error);
-      alert("Database error encountered while saving batch.");
+      alert("Database error encountered while saving Phones.");
+    } finally {
+      // Always unlock the button when finished
+      setIsSubmitting(false);
     }
   };
 
@@ -290,19 +330,22 @@ const PurchaseForm = () => {
         {/* CONSTANT SUBMIT BUTTON */}
         <button
           type="submit"
+          disabled={isSubmitting}
           style={{
-            background: "var(--success)",
+            background: isSubmitting ? "#ccc" : "var(--success)",
             width: "100%",
             padding: "12px",
             fontSize: "1.1rem",
-            cursor: "pointer",
+            cursor: isSubmitting ? "not-allowed" : "pointer",
             color: "white",
             border: "none",
             borderRadius: "6px",
             fontWeight: "bold",
           }}
         >
-          Save All Added Phones
+          {isSubmitting
+            ? "Checking Database & Saving..."
+            : "Add Phones to Stock"}
         </button>
       </form>
     </div>
