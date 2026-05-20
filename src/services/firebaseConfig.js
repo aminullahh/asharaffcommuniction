@@ -1,7 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import {
+  getFirestore,
+  disableNetwork,
+  enableIndexedDbPersistence,
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { enableIndexedDbPersistence } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -12,17 +15,26 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
 
-// This Initialize Firebase
+// 1. Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// This Initialize Services
-export const db = getFirestore(app);
-export const auth = getAuth(app);
-// Enable offline persistence
+// 2. Initialize Services
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// 3. Turn ON Local Hard Drive Saving (CRITICAL FOR OFFLINE)
 enableIndexedDbPersistence(db).catch((err) => {
   if (err.code === "failed-precondition") {
-    console.log("Multiple tabs open, offline mode disabled.");
+    console.warn("Multiple tabs open, offline mode disabled.");
   } else if (err.code === "unimplemented") {
-    console.log("Browser doesn't support offline storage.");
+    console.warn("Browser doesn't support offline storage.");
   }
 });
+
+// 4. Turn OFF the Internet Connection
+disableNetwork(db)
+  .then(() => console.log("Amtech Phone Manager is running strictly OFFLINE."))
+  .catch((error) => console.error("Network lockdown failed:", error));
+
+// 5. Export them for the rest of your app to use
+export { auth, db };

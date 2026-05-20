@@ -25,7 +25,7 @@ const PurchaseForm = () => {
   const [phoneBatch, setPhoneBatch] = useState([]);
   const [showGuarantor, setShowGuarantor] = useState(false);
 
-  // This lock the button and prevent spam-clicking
+  // NEW: State to lock the button and prevent spam-clicking
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addPhoneToBatch = () => {
@@ -48,7 +48,7 @@ const PurchaseForm = () => {
   const handleBulkSubmit = async (e) => {
     e.preventDefault();
 
-    // This Instantly lock the button so they can't click twice
+    // LAYER 1: Instantly lock the button so they can't click twice
     setIsSubmitting(true);
 
     // This Check if we are saving a batch, or just a single direct phone
@@ -61,7 +61,7 @@ const PurchaseForm = () => {
         !currentPhone.imei ||
         !currentPhone.costPrice
       ) {
-        setIsSubmitting(false); // This Unlock button
+        setIsSubmitting(false); // Unlock button
         return alert(
           "Please enter the device details or add devices to the batch list.",
         );
@@ -70,13 +70,13 @@ const PurchaseForm = () => {
     }
 
     if (!sellerData.sellerName) {
-      setIsSubmitting(false); // This Unlock button
+      setIsSubmitting(false); // Unlock button
       return alert("Seller Name is required to bind records.");
     }
 
     try {
-      // This Handle The IMEI CHECK
-      // This Check every phone in the batch to see if it already exists in Firebase
+      // LAYER 2: THE IMEI CHECK
+      // Check every phone in the batch to see if it already exists in Firebase
       for (const phone of finalBatch) {
         const cleanImei = phone.imei.trim();
         const imeiQuery = query(
@@ -87,24 +87,24 @@ const PurchaseForm = () => {
 
         if (!querySnapshot.empty) {
           alert(
-            `A device with IMEI ${cleanImei} is already recorded in the system!`,
+            `⚠️ STOP: A device with IMEI ${cleanImei} is already recorded in the system!`,
           );
-          setIsSubmitting(false); // ThisUnlock button so you can fix it
-          return;
+          setIsSubmitting(false); // Unlock button so you can fix it
+          return; // Stop the whole save process
         }
       }
 
-      // This Handle all IMEIs that are new. and Save them all to Firebase!
+      // If we get here, all IMEIs are new. Save them all to Firebase!
       for (const phone of finalBatch) {
         await addDoc(collection(db, "inventory"), {
           ...sellerData,
           ...phone,
-          imei: phone.imei.trim(), // This save the clean version
+          imei: phone.imei.trim(), // Save the clean version
           status: "available",
           dateAdded: serverTimestamp(),
         });
       }
-      alert(`Success! ${finalBatch.length} device recorded sucessfully.`);
+      alert(`Success! ${finalBatch.length} device records secured safely.`);
 
       // This reset Reset the entire form
       setPhoneBatch([]);
@@ -123,7 +123,7 @@ const PurchaseForm = () => {
       setShowGuarantor(false);
     } catch (error) {
       console.error(error);
-      alert("Database error encountered while saving Phones.");
+      alert("Database error encountered while saving batch.");
     } finally {
       // Always unlock the button when finished
       setIsSubmitting(false);
@@ -345,7 +345,7 @@ const PurchaseForm = () => {
         >
           {isSubmitting
             ? "Checking Database & Saving..."
-            : "Add Phones to Stock"}
+            : "Save All Added Phones"}
         </button>
       </form>
     </div>

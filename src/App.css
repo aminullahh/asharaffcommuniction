@@ -42,18 +42,12 @@ body {
 }
 
 .main-header h1 {
-  font-size: 20px;
-}
-
-.brand-title {
-  margin: 0;
-  font-size: 1.8rem;
-  color: var(--primary);
+  font-size: 0.8rem;
 }
 
 .brand-subtitle {
   color: var(--secondary);
-  font-size: 0.8rem;
+  font-size: 10px;
   font-weight: bold;
 }
 
@@ -160,8 +154,18 @@ tr:hover {
   width: 100%;
 }
 
+/* Hide hamburger by default on desktop */
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 30px;
+  color: var(--primary);
+  cursor: pointer;
+}
+
 /* Mobile Responsiveness */
-@media (max-width: 768px) {
+@media (max-width: 968px) {
   .main-header {
     flex-direction: column;
     align-items: flex-start;
@@ -180,5 +184,23 @@ tr:hover {
   .input-group {
     flex-direction: column;
     gap: 10px;
+  }
+  .hamburger-btn {
+    display: block; /* Show hamburger on mobile */
+  }
+
+  .desktop-nav {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 15px;
+    background: white;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+
+  .desktop-nav.open {
+    display: flex;
   }
 }

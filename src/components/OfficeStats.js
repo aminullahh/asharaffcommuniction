@@ -11,13 +11,50 @@ const OfficeStats = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // 0 - 11
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
+  // useEffect(() => {
+  //   const u1 = onSnapshot(collection(db, "sales"), (snap) => {
+  //     const data = snap.docs.map((d) => d.data());
+  //     console.log("OfficeStats: Loaded", data.length, "sales from cache.");
+  //     setSales(data);
+  //   });
+
+  //   const u2 = onSnapshot(collection(db, "inventory"), (snap) => {
+  //     const data = snap.docs.map((d) => d.data());
+  //     console.log(
+  //       "OfficeStats: Loaded",
+  //       data.length,
+  //       "inventory items from cache.",
+  //     );
+  //     setInventory(data);
+  //   });
+
+  //   return () => {
+  //     u1();
+  //     u2();
+  //   };
+  // }, []);
   useEffect(() => {
-    const u1 = onSnapshot(collection(db, "sales"), (snap) =>
-      setSales(snap.docs.map((d) => d.data())),
-    );
-    const u2 = onSnapshot(collection(db, "inventory"), (snap) =>
-      setInventory(snap.docs.map((d) => d.data())),
-    );
+    // 1. ADDED { serverTimestamps: "estimate" } to generate offline dates
+    const u1 = onSnapshot(collection(db, "sales"), (snap) => {
+      const data = snap.docs.map((d) =>
+        d.data({ serverTimestamps: "estimate" }),
+      );
+      console.log("OfficeStats: Loaded", data.length, "sales from cache.");
+      setSales(data);
+    });
+
+    const u2 = onSnapshot(collection(db, "inventory"), (snap) => {
+      const data = snap.docs.map((d) =>
+        d.data({ serverTimestamps: "estimate" }),
+      );
+      console.log(
+        "OfficeStats: Loaded",
+        data.length,
+        "inventory items from cache.",
+      );
+      setInventory(data);
+    });
+
     return () => {
       u1();
       u2();
@@ -25,12 +62,50 @@ const OfficeStats = () => {
   }, []);
 
   // This Handle Core Filtering Engine
-  const filterRecords = (records, dateKey) => {
-    return records.filter((item) => {
-      if (!item[dateKey]) return false;
+  // const filterRecords = (records, dateKey) => {
+  //   return records.filter((item) => {
+  //     if (!item[dateKey]) return false;
 
-      // This Convert Firestore Timestamp to JS Date object
-      const itemDate = item[dateKey].toDate();
+  //     // Robust check: handles both online Firestore Timestamps and offline raw dates
+  //     const itemDate = item[dateKey].toDate
+  //       ? item[dateKey].toDate()
+  //       : new Date(item[dateKey]);
+  //     const now = new Date();
+
+  //     if (timeFilter === "today") {
+  //       return itemDate.toDateString() === now.toDateString();
+  //     }
+  //     if (timeFilter === "week") {
+  //       const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  //       return itemDate >= oneWeekAgo;
+  //     }
+  //     if (timeFilter === "month") {
+  //       return (
+  //         itemDate.getMonth() === now.getMonth() &&
+  //         itemDate.getFullYear() === now.getFullYear()
+  //       );
+  //     }
+  //     if (timeFilter === "specific-month") {
+  //       return (
+  //         itemDate.getMonth() === Number(selectedMonth) &&
+  //         itemDate.getFullYear() === Number(selectedYear)
+  //       );
+  //     }
+  //     return true;
+  //   });
+  // };
+  const filterRecords = (records, dateKey) => {
+    // 2. If we are looking at "all" time, just return everything immediately!
+    if (timeFilter === "all") return records;
+
+    return records.filter((item) => {
+      // 3. Fallback: If it's STILL missing a date, count it as today
+      const itemDate = item[dateKey]
+        ? item[dateKey].toDate
+          ? item[dateKey].toDate()
+          : new Date(item[dateKey])
+        : new Date();
+
       const now = new Date();
 
       if (timeFilter === "today") {
@@ -95,7 +170,7 @@ const OfficeStats = () => {
       <div
         style={{
           display: "flex",
-          justifyContent: "between",
+          justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
           gap: "15px",
@@ -167,18 +242,18 @@ const OfficeStats = () => {
                 <option value="2025">2025</option>
                 <option value="2026">2026</option>
                 <option value="2027">2027</option>
-                <option value="2025">2028</option>
-                <option value="2026">2029</option>
-                <option value="2027">2030</option>
-                <option value="2025">2031</option>
-                <option value="2026">2032</option>
-                <option value="2027">2033</option>
-                <option value="2025">2034</option>
-                <option value="2026">2035</option>
-                <option value="2027">2036</option>
-                <option value="2025">2037</option>
-                <option value="2026">2038</option>
-                <option value="2027">2039</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+                <option value="2031">2031</option>
+                <option value="2032">2032</option>
+                <option value="2033">2033</option>
+                <option value="2034">2034</option>
+                <option value="2035">2035</option>
+                <option value="2036">2036</option>
+                <option value="2037">2037</option>
+                <option value="2038">2038</option>
+                <option value="2039">2039</option>
               </select>
             </div>
           )}

@@ -17,7 +17,9 @@ const Ledger = () => {
   useEffect(() => {
     const q = query(collection(db, "sales"), where("debt", ">", 0));
     const unsub = onSnapshot(q, (snap) => {
-      setDebtors(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      console.log("Ledger: Loaded", data.length, "active debtors from cache.");
+      setDebtors(data);
       setLoading(false);
     });
     return unsub;
@@ -47,7 +49,7 @@ const Ledger = () => {
       alert(
         newDebt === 0
           ? "Debt completely cleared!"
-          : `Balance updated! Remaining debt: &#8358;${newDebt.toLocaleString()}`,
+          : `Balance updated! Remaining debt: ₦${newDebt.toLocaleString()}`,
       );
       setPaymentAmounts({ ...paymentAmounts, [debtor.id]: "" });
     } catch (err) {
@@ -119,7 +121,7 @@ const Ledger = () => {
                     )) || "N/A"}
                   </td>
                   <td style={{ padding: "12px" }}>
-                    &#8358;{Number(debtor.totalAmount).toLocaleString()}
+                    ₦{Number(debtor.totalAmount).toLocaleString()}
                   </td>
                   <td
                     style={{
@@ -128,7 +130,7 @@ const Ledger = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    &#8358;{Number(debtor.debt).toLocaleString()}
+                    ₦{Number(debtor.debt).toLocaleString()}
                   </td>
                   <td style={{ padding: "12px" }}>
                     <div style={{ display: "flex", gap: "8px" }}>

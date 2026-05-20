@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../services/firebaseConfig";
+// CRITICAL FIX: Make sure 'where' is actually imported so the query doesn't crash!
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 
 const AvailableStock = ({ setView, setCheckoutCart }) => {
@@ -9,15 +10,25 @@ const AvailableStock = ({ setView, setCheckoutCart }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    // Only fetch phones that are currently "available"
+    // Only fetch phones from the local cache that are currently "available"
     const stockQuery = query(
       collection(db, "inventory"),
       where("status", "==", "available"),
     );
-    const unsubStock = onSnapshot(stockQuery, (snap) => {
-      setStock(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-      setLoading(false);
-    });
+
+    const unsubStock = onSnapshot(
+      stockQuery,
+      (snap) => {
+        const stockData = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setStock(stockData);
+        setLoading(false);
+        console.log("Offline stock loaded:", stockData.length, "items");
+      },
+      (error) => {
+        console.error("Error fetching offline stock:", error);
+        setLoading(false);
+      },
+    );
 
     return () => unsubStock();
   }, []);
